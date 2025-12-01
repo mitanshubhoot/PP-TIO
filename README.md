@@ -16,7 +16,7 @@ Organizations maintain private feeds of IoCs (IP addresses, domains, URLs, malwa
 - ✅ Bloom filter encoding for efficient set representation
 - ✅ Two-party protocol simulation
 - ✅ Command-line interface for easy usage
-- ✅ **Web Dashboard** with real-time visualizations ⭐ NEW
+- ✅ **Web Dashboard** with real-time visualizations (NEW)
 - ✅ REST API for programmatic access
 - ✅ Comprehensive testing and benchmarking
 
@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Option 1: Web Dashboard (Recommended) ⭐
+### Option 1: Web Dashboard (Recommended)
 
 ```bash
 # Make startup script executable (first time only)
@@ -60,11 +60,11 @@ chmod +x start_web.sh
 Then open your browser to **http://localhost:5000**
 
 **Features:**
-- 🎨 Modern dark theme (ProjectDiscovery-inspired)
-- ⚡ Real-time simulation updates
-- 📊 Interactive Chart.js visualizations
-- 🖥️ Terminal-style log output
-- 📱 Responsive design
+-  Modern dark theme (ProjectDiscovery-inspired)
+-  Real-time simulation updates
+-  Interactive Chart.js visualizations
+-  Terminal-style log output
+-  Responsive design
 
 ### Option 2: Command Line
 
@@ -152,7 +152,6 @@ This is an academic project for educational purposes.
 
 Mitanshu Bhoot  
 Security for Networked Systems  
-Mini Project - Fall 2025
 
 ## Acknowledgments
 
