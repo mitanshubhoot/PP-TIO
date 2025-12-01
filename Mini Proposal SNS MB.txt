@@ -1,0 +1,91 @@
+Mini-Proposal:
+Privacy-Preserving Threat Intelligence Sharing
+Using Homomorphic Encryption
+Mitanshu Bhoot
+Security for Networked Systems
+September 20, 2025
+
+Background and Motivation
+Organizations such as Internet Service Providers (ISPs), financial institutions, and enterprises
+maintain private feeds of Indicators of Compromise (IoCs). These feeds include attacker-controlled
+IP addresses, malicious domains, phishing URLs, and malware hashes. Such data is invaluable for
+defending networks, as IoCs help identify and block malicious activity before it spreads further.
+In practice, no single organization has complete visibility of global attacks. Attackers re-use infrastructure across many victims, which means one organization may observe part of an attack
+campaign, while another sees a different part. If these organizations could compare their IoCs,
+they would gain a fuller picture and detect broader campaigns more quickly. For example, if two
+ISPs independently observe the same set of malicious command-and-control (C2) servers, this
+overlap strongly suggests their customers are being targeted by the same botnet or ransomware
+group. Acting on this knowledge allows for quicker blocking, better attribution, and even coordination for takedowns.
+However, despite the clear benefits, organizations often hesitate to share complete IoC feeds. The
+reasons include:
+• Business sensitivity: Revealing unique detections may expose internal capabilities, detection methods, or competitive advantages.
+• Legal and privacy concerns: Raw logs or victim-related indicators could unintentionally
+reveal customer identities, regulated data, or confidential operations.
+• Trust deficits: Organizations may be cautious about sharing unvalidated or experimental
+indicators, fearing false positives could harm their reputation.
+As a result, current practices rely on partial sharing through public blocklists (e.g., Spamhaus,
+abuse.ch) or closed consortiums (e.g., FS-ISAC, MISP, STIX/TAXII). In these forums, members
+still hold back the most sensitive but often most valuable indicators, such as early detections of
+phishing kits, brand-specific domains, or intelligence from internal honeypots. This creates a gap:
+Currently there is no safe way to compare threat intelligence datasets for overlap or similarity
+without exposing the underlying lists.
+1
+
+Why This is Important ?
+The ability to measure overlap between threat feeds is not a trivial task—it addresses a fundamental
+operational problem in network security. Consider two ISPs each maintaining lists of thousands
+of suspicious IP addresses. Knowing that there are 500 overlaps between their lists has several
+practical benefits:
+• Higher confidence: Indicators observed independently by multiple organizations are far less
+likely to be false positives, so they can be prioritized for blocking.
+• Faster defense: Once overlap is confirmed, each ISP can immediately apply protections for
+its own customers without waiting for further validation.
+• Campaign detection: Shared indicators point to coordinated attacker infrastructure, providing early warning that a large-scale campaign is underway.
+• Collaboration trigger: The amount of overlap can guide whether deeper cooperation (e.g.,
+joint investigations or takedowns) is worthwhile.
+Today, organizations either overshare (revealing too much sensitive data) or undershare (withholding valuable indicators). A middle ground is needed that enables collective defense without
+requiring full trust or disclosure.
+
+What is Homomorphic Encryption?
+Homomorphic Encryption (HE) is a cryptographic technique that allows computations to be performed directly on encrypted data. Unlike traditional encryption, which requires data to be decrypted before use, HE preserves confidentiality during computation. For example, two numbers
+can be encrypted, added together by an external party, and the decrypted result will be the correct
+sum—even though the external party never saw the plaintext values.
+Modern HE schemes such as BFV, CKKS, and TFHE make it possible to perform addition, multiplication, and more complex operations on ciphertexts. While these schemes are computationally
+heavier than plaintext computation, they open the door to new applications where privacy and
+collaboration are both essential.
+
+How HE Helps Here ?
+HE directly addresses the trust and privacy barriers in threat intelligence sharing:
+• Encrypted overlap computation: Each organization can encrypt its IoC set and still participate in an overlap check, ensuring that raw indicators never leave local control.
+• Selective disclosure: The protocol reveals only aggregate numbers, such as the size of the
+overlap or Jaccard similarity, without exposing unique or non-overlapping items.
+• Lowering the trust barrier: Even competitors, or organizations from different industries,
+can collaborate since sensitive feeds remain private.
+2
+
+• Enabling broader participation: By reducing the risk of overexposure, more entities—including
+those in regulated sectors like healthcare and finance—may be willing to contribute to collaborative defense.
+In essence, HE provides a new middle ground: it enables organizations to verify that they are
+fighting the same adversary without requiring them to give away their full threat feeds.
+
+Proposed Project
+We propose to design and implement a prototype system called Privacy-Preserving Threat Intelligence Overlap (PP-TIO). The system will simulate two ISPs that:
+• Encode their IoC lists into Bloom filters and encrypt them using the BFV scheme.
+• Perform homomorphic operations to compute the number of overlapping indicators.
+• Derive similarity metrics such as Jaccard similarity from these results.
+• Demonstrate through experiments that only aggregate results are revealed, never the underlying lists.
+This prototype will use synthetic datasets and publicly available blocklists to validate correctness,
+measure performance, and analyze the privacy guarantees. The end product will be a commandline tool (with optional REST API) and a written evaluation.
+
+Deliverables
+1. Project report/document: including background, design, experiments, and analysis of security and performance trade-offs.
+2. Source code: a working prototype demonstrating privacy-preserving overlap detection between two parties.
+
+Conclusion
+This project applies advanced cryptography to a real-world problem in network security. By enabling privacy-preserving overlap computation of threat intelligence feeds, we bridge the gap between the need for collaboration and the need for confidentiality. The prototype will demonstrate
+not only technical feasibility but also the potential for such methods to improve trust, accelerate
+detection, and strengthen collective defense in practice.
+
+3
+
+

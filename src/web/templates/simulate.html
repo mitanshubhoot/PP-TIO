@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Simulation | PP-TIO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">PP-TIO</div>
+                <nav>
+                    <a href="/">Home</a>
+                    <a href="/simulate" class="active">Simulate</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 3rem 0;">
+        <h1 class="text-center mb-3" style="font-size: 3rem;">Run Privacy-Preserving Simulation</h1>
+        <p class="text-center text-muted mb-3" style="max-width: 600px; margin: 0 auto 3rem;">
+            Configure your simulation parameters and watch the encrypted overlap computation in real-time.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1200px; margin: 0 auto;">
+            <!-- Configuration Panel -->
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem;">Configuration</h2>
+
+                <!-- Dataset 1 -->
+                <div
+                    style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--accent-primary);">Dataset 1 (ISP A)</h4>
+                    <div class="form-group">
+                        <label>Source</label>
+                        <select id="source1" class="form-control" onchange="updateSourceOptions(1)">
+                            <option value="synthetic">Synthetic Data</option>
+                            <option value="feodo">Feodo Tracker (IPs)</option>
+                            <option value="urlhaus">URLhaus (URLs)</option>
+                            <option value="phishtank">PhishTank (URLs)</option>
+                        </select>
+                    </div>
+                    <div id="size1-group" class="form-group">
+                        <label>Size: <span id="size1-value">100</span></label>
+                        <input type="range" id="size1" min="10" max="1000" value="100" step="10" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Dataset 2 -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--accent-secondary);">Dataset 2 (ISP B)</h4>
+                    <div class="form-group">
+                        <label>Source</label>
+                        <select id="source2" class="form-control" onchange="updateSourceOptions(2)">
+                            <option value="synthetic">Synthetic Data</option>
+                            <option value="feodo">Feodo Tracker (IPs)</option>
+                            <option value="urlhaus">URLhaus (URLs)</option>
+                            <option value="phishtank">PhishTank (URLs)</option>
+                        </select>
+                    </div>
+                    <div id="size2-group" class="form-group">
+                        <label>Size: <span id="size2-value">100</span></label>
+                        <input type="range" id="size2" min="10" max="1000" value="100" step="10" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>IoC Type (for Synthetic)</label>
+                    <select id="ioc-type" class="form-control">
+                        <option value="ip">IP Addresses</option>
+                        <option value="domain">Domains</option>
+                        <option value="url">URLs</option>
+                        <option value="hash">File Hashes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Limit Real Feed Size</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="limit-size" checked>
+                        <span class="text-muted" style="font-size: 0.9rem;">Limit to slider value (faster)</span>
+                    </div>
+                </div>
+
+                <details style="margin-top: 1.5rem;">
+                    <summary style="cursor: pointer; color: var(--text-secondary); margin-bottom: 1rem;">Advanced
+                        Settings</summary>
+
+                    <div class="form-group">
+                        <label>Bloom Filter Size</label>
+                        <input type="number" id="bloom-size" class="form-control" value="10000">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hash Functions</label>
+                        <input type="number" id="hash-count" class="form-control" value="5" min="1" max="10">
+                    </div>
+                </details>
+
+                <button id="run-btn" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                    🚀 Run Simulation
+                </button>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem;">Status</h2>
+
+                <div id="status-idle" class="text-center" style="padding: 3rem 0;">
+                    <p class="text-muted">Ready to run simulation</p>
+                </div>
+
+                <div id="status-running" style="display: none;">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-stages mt-1">
+                            <div class="stage" id="stage-generating">
+                                <span>●</span> Generating
+                            </div>
+                            <div class="stage" id="stage-encrypting">
+                                <span>●</span> Encrypting
+                            </div>
+                            <div class="stage" id="stage-computing">
+                                <span>●</span> Computing
+                            </div>
+                            <div class="stage" id="stage-complete">
+                                <span>●</span> Complete
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="terminal mt-2" id="terminal">
+                        <div class="terminal-line">$ Starting PP-TIO simulation...</div>
+                    </div>
+                </div>
+
+                <div id="status-complete" style="display: none; text-align: center;">
+                    <h3 style="margin-bottom: 1rem;">Simulation Complete!</h3>
+                    <a id="view-results-btn" href="#" class="btn btn-primary">View Results</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/simulate.js') }}"></script>
+</body>
+
+</html>

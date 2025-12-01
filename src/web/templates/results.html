@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | PP-TIO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">PP-TIO</div>
+                <nav>
+                    <a href="/">Home</a>
+                    <a href="/simulate">Simulate</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 3rem 0;">
+        <h1 class="text-center mb-2" style="font-size: 3rem;">Simulation Results</h1>
+        <p class="text-center text-muted mb-3">Privacy-preserving overlap detection completed</p>
+
+        <!-- Hero Metrics -->
+        <div class="results-hero" id="metrics">
+            <div class="metric-card">
+                <div class="metric-value primary" id="estimated-overlap">-</div>
+                <div class="metric-label">Estimated Overlap</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value primary" id="jaccard">-</div>
+                <div class="metric-label">Jaccard Similarity</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value success" id="accuracy">-</div>
+                <div class="metric-label">Accuracy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="exec-time">-</div>
+                <div class="metric-label">Execution Time</div>
+            </div>
+        </div>
+
+        <!-- Privacy Indicators -->
+        <div class="text-center mt-3 mb-3">
+            <span class="privacy-badge success">✓ Privacy Preserved</span>
+            <span class="privacy-badge error" style="margin-left: 1rem;">✗ Raw IoCs Exposed</span>
+        </div>
+
+        <!-- Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
+            <div class="chart-container">
+                <h3>Overlap Comparison</h3>
+                <canvas id="overlapChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Bloom Filter Statistics</h3>
+                <canvas id="bloomChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Stats -->
+        <div class="card mt-3">
+            <h2 style="margin-bottom: 1.5rem;">Detailed Statistics</h2>
+            <div id="detailed-stats"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="text-center mt-3">
+            <a href="/simulate" class="btn btn-primary">Run Another Simulation</a>
+            <button id="export-btn" class="btn btn-secondary" style="margin-left: 1rem;">Export Results (JSON)</button>
+        </div>
+    </main>
+
+    <script>
+        const simId = '{{ sim_id }}';
+        let resultsData = null;
+
+        async function loadResults() {
+            try {
+                const response = await fetch(`/api/results/${simId}`);
+                const data = await response.json();
+
+                if (data.status !== 'complete') {
+                    document.body.innerHTML = '<div class="container text-center" style="padding: 4rem;"><h1>Simulation not complete</h1><a href="/simulate" class="btn btn-primary mt-2">Go Back</a></div>';
+                    return;
+                }
+
+                resultsData = data.results;
+                displayResults(resultsData);
+            } catch (error) {
+                console.error('Failed to load results:', error);
+                alert('Failed to load results');
+            }
+        }
+
+        function displayResults(results) {
+            // Hero metrics
+            document.getElementById('estimated-overlap').textContent =
+                results.overlap_statistics.estimated_item_overlap;
+            document.getElementById('jaccard').textContent =
+                results.overlap_statistics.jaccard_similarity.toFixed(4);
+            document.getElementById('accuracy').textContent =
+                (100 - (results.accuracy?.error_percentage || 0)).toFixed(1) + '%';
+            document.getElementById('exec-time').textContent =
+                results.execution_time.toFixed(2) + 's';
+
+            // Overlap comparison chart
+            const overlapCtx = document.getElementById('overlapChart').getContext('2d');
+            new Chart(overlapCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Estimated', 'Actual'],
+                    datasets: [{
+                        label: 'Overlap Count',
+                        data: [
+                            results.overlap_statistics.estimated_item_overlap,
+                            results.verification?.actual_overlap || 0
+                        ],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Bloom filter chart
+            const bloomCtx = document.getElementById('bloomChart').getContext('2d');
+            new Chart(bloomCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Party 1 Bits', 'Party 2 Bits', 'Overlap Bits'],
+                    datasets: [{
+                        data: [
+                            results.party1_info.bloom_set_bits,
+                            results.party2_info.bloom_set_bits,
+                            results.overlap_statistics.overlap_bits
+                        ],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+
+            // Detailed stats
+            const statsHtml = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--accent-primary);">${results.party1_info.name}</h4>
+                        <p><strong>IoC Count:</strong> ${results.party1_info.ioc_count}</p>
+                        <p><strong>Bloom Bits Set:</strong> ${results.party1_info.bloom_set_bits}</p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--accent-secondary);">${results.party2_info.name}</h4>
+                        <p><strong>IoC Count:</strong> ${results.party2_info.ioc_count}</p>
+                        <p><strong>Bloom Bits Set:</strong> ${results.party2_info.bloom_set_bits}</p>
+                    </div>
+                </div>
+                <hr style="margin: 1.5rem 0; border-color: var(--border-color);">
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Verification</h4>
+                    <p><strong>Actual Overlap:</strong> ${results.verification?.actual_overlap !== undefined ? results.verification.actual_overlap : 'N/A'}</p>
+                    <p><strong>Error:</strong> ${results.accuracy?.error || 0} items (${results.accuracy?.error_percentage.toFixed(2) || 0}%)</p>
+                    <p><strong>Bloom Filter Size:</strong> ${results.bloom_filter_params.size}</p>
+                    <p><strong>Hash Functions:</strong> ${results.bloom_filter_params.hash_count}</p>
+                </div>
+            `;
+            document.getElementById('detailed-stats').innerHTML = statsHtml;
+        }
+
+        // Export results
+        document.getElementById('export-btn').addEventListener('click', () => {
+            if (!resultsData) return;
+
+            const dataStr = JSON.stringify(resultsData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `pptio-results-${simId}.json`;
+            link.click();
+        });
+
+        // Load results on page load
+        loadResults();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PP-TIO | Privacy-Preserving Threat Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">PP-TIO</div>
+                <nav>
+                    <a href="/" class="active">Home</a>
+                    <a href="/simulate">Simulate</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Privacy-Preserving<br>Threat Intelligence</h1>
+                <p>
+                    Compute overlap between IoC lists without exposing raw data.
+                    Using homomorphic encryption and Bloom filters for secure collaboration.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                    <a href="/simulate" class="btn btn-primary">Run Simulation</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" style="margin-top: 4rem;">
+            <h2 class="text-center mb-3" style="font-size: 2.5rem;">Live Statistics</h2>
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-sims">0</div>
+                    <div class="stat-label">Total Simulations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-accuracy">0%</div>
+                    <div class="stat-label">Average Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="privacy-score">100%</div>
+                    <div class="stat-label">Privacy Preserved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completed-sims">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="features" style="margin: 6rem 0;">
+            <h2 class="text-center mb-3" style="font-size: 2.5rem;">Key Features</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Privacy-Preserving</h3>
+                    <p class="text-muted">
+                        Raw IoC lists never leave your control. Only aggregate statistics are revealed using homomorphic
+                        encryption.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Real-Time</h3>
+                    <p class="text-muted">
+                        Live simulation updates with progress tracking. See encryption and computation happen in
+                        real-time.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Accurate</h3>
+                    <p class="text-muted">
+                        Bloom filter-based overlap detection with <98% accuracy. Jaccard similarity and set estimation.
+                            </p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Real Threat Feeds</h3>
+                    <p class="text-muted">
+                        Integrate with live threat intelligence from abuse.ch, URLhaus, and other public sources.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">BFV Encryption</h3>
+                    <p class="text-muted">
+                        Industry-standard Brakerski-Fan-Vercauteren homomorphic encryption scheme via TenSEAL.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Visualizations</h3>
+                    <p class="text-muted">
+                        Interactive charts, Venn diagrams, and performance metrics. Export results as JSON/CSV.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container text-center" style="margin: 6rem 0;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">Ready to Get Started?</h2>
+            <a href="/simulate" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 2.5rem;">
+                Launch Dashboard →
+            </a>
+        </section>
+    </main>
+
+    <footer style="border-top: 1px solid var(--border-color); padding: 2rem 0; margin-top: 4rem;">
+        <div class="container text-center text-muted">
+            <p>PP-TIO | Privacy-Preserving Threat Intelligence Overlap</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem;">
+                Built with Homomorphic Encryption • Bloom Filters • TenSEAL
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+
+                document.getElementById('total-sims').textContent = stats.total_simulations;
+                document.getElementById('avg-accuracy').textContent = stats.average_accuracy.toFixed(1) + '%';
+                document.getElementById('privacy-score').textContent = stats.privacy_preserved.toFixed(0) + '%';
+                document.getElementById('completed-sims').textContent = stats.completed;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        // Load stats on page load
+        loadStats();
+
+        // Refresh stats every 5 seconds
+        setInterval(loadStats, 5000);
+    </script>
+</body>
+
+</html>

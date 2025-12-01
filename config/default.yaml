@@ -1,0 +1,89 @@
+# PP-TIO Configuration File
+
+# Bloom Filter Parameters
+bloom_filter:
+  # Size of the Bloom filter bit array
+  size: 10000
+  
+  # Number of hash functions
+  hash_count: 5
+  
+  # Expected false positive rate
+  false_positive_rate: 0.01
+
+# BFV Homomorphic Encryption Parameters
+encryption:
+  # Polynomial modulus degree (must be power of 2)
+  # Higher values = more security but slower computation
+  # Typical values: 4096, 8192, 16384
+  poly_modulus_degree: 8192
+  
+  # Coefficient modulus bit sizes
+  # Used for modulus switching in BFV
+  coeff_mod_bit_sizes: [60, 40, 40, 60]
+  
+  # Plaintext modulus
+  # Should be prime and support bit operations
+  plain_modulus: 1032193
+
+# Dataset Configuration
+datasets:
+  # Directory for storing datasets
+  data_dir: "datasets/"
+  
+  # Synthetic dataset generation
+  synthetic:
+    default_size: 1000
+    overlap_percentage: 50
+  
+  # Public blocklist sources
+  public_sources:
+    - name: "abuse.ch"
+      url: "https://feodotracker.abuse.ch/downloads/ipblocklist.txt"
+      type: "ip"
+    - name: "malware_domains"
+      url: "https://mirror1.malwaredomains.com/files/justdomains"
+      type: "domain"
+
+# IoC Types Configuration
+ioc_types:
+  - ip_address
+  - domain
+  - url
+  - file_hash
+
+# Computation Settings
+computation:
+  # Enable parallel processing
+  parallel: true
+  
+  # Number of worker threads
+  num_threads: 4
+  
+  # Batch size for encryption
+  batch_size: 100
+
+# API Configuration (Optional)
+api:
+  enabled: false
+  host: "127.0.0.1"
+  port: 5000
+  debug: false
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pptio.log"
+
+# Security Settings
+security:
+  # Key storage directory
+  key_dir: "keys/"
+  
+  # Key file names
+  public_key_file: "public.key"
+  private_key_file: "private.key"
+  
+  # Require key encryption at rest
+  encrypt_keys: false
